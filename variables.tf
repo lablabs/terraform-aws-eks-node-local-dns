@@ -18,25 +18,25 @@ variable "cluster_identity_oidc_issuer_arn" {
 
 variable "helm_chart_name" {
   type        = string
-  default     = "<$addon-name>"
+  default     = "node-local-dns"
   description = "Helm chart name to be installed"
 }
 
 variable "helm_chart_version" {
   type        = string
-  default     = "<helm_chart_version>"
+  default     = "1.3.2"
   description = "Version of the Helm chart"
 }
 
 variable "helm_release_name" {
   type        = string
-  default     = "<$addon-name>"
+  default     = "node-local-dns"
   description = "Helm release name"
 }
 
 variable "helm_repo_url" {
   type        = string
-  default     = "<helm_repo_url>"
+  default     = "https://lablabs.github.io/k8s-nodelocaldns-helm/"
   description = "Helm repository"
 }
 
@@ -48,20 +48,20 @@ variable "helm_create_namespace" {
 
 variable "namespace" {
   type        = string
-  default     = "<$addon-name>"
-  description = "The K8s namespace in which the <$addon-name> service account has been created"
+  default     = "kube-system"
+  description = "The K8s namespace in which the kube-system service account has been created"
 }
 
 variable "settings" {
   type        = map(any)
   default     = {}
-  description = "Additional helm sets which will be passed to the Helm chart values, see https://hub.helm.sh/charts/stable/<$addon-name>"
+  description = "Additional helm sets which will be passed to the Helm chart values, see https://github.com/lablabs/k8s-nodelocaldns-helm/tree/master/charts/node-local-dns"
 }
 
 variable "values" {
   type        = string
   default     = ""
-  description = "Additional yaml encoded values which will be passed to the Helm chart, see https://hub.helm.sh/charts/stable/<$addon-name>"
+  description = "Additional yaml encoded values which will be passed to the Helm chart, see https://github.com/lablabs/k8s-nodelocaldns-helm/tree/master/charts/node-local-dns"
 }
 
 # ================ IRSA variables (optional) ================
@@ -80,8 +80,8 @@ variable "service_account_create" {
 
 variable "service_account_name" {
   type        = string
-  default     = "<$addon-name>"
-  description = "The k8s <$addon-name> service account name"
+  default     = "node-local-dns"
+  description = "The k8s node-local-dns service account name"
 }
 
 variable "irsa_role_create" {
@@ -116,8 +116,8 @@ variable "irsa_additional_policies" {
 
 variable "irsa_role_name_prefix" {
   type        = string
-  default     = "<$addon-name>-irsa"
-  description = "The IRSA role name prefix for <$addon-name>"
+  default     = "node-local-dns-irsa"
+  description = "The IRSA role name prefix for node-local-dns"
 }
 
 variable "irsa_tags" {
