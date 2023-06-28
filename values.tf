@@ -1,129 +1,129 @@
 locals {
   values_default = yamlencode({
-    "config": {
-        "localDnsIp": "169.254.20.11",
-        "zones": {
-            ".:53": {
-                "plugins": {
-                "errors": true,
-                "reload": true,
-                "debug": false,
-                "log": {
-                    "format": "combined",
-                    "classes": "all"
-                },
-                "cache": {
-                    "parameters": 30,
-                    "denial": {},
-                    "success": {},
-                    "prefetch": {},
-                    "serve_stale": false
-                },
-                "forward": {
-                    "parameters": "172.20.0.10",
-                    "force_tcp": false,
-                    "prefer_udp": false,
-                    "policy": "",
-                    "max_fails": "",
-                    "expire": "",
-                    "health_check": "",
-                    "except": ""
-                },
-                "prometheus": true,
-                "health": {
-                    "port": 8080
-                }
-                }
+    "config" : {
+      "localDnsIp" : "169.254.20.11",
+      "zones" : {
+        ".:53" : {
+          "plugins" : {
+            "errors" : true,
+            "reload" : true,
+            "debug" : false,
+            "log" : {
+              "format" : "combined",
+              "classes" : "all"
             },
-            "ip6.arpa:53": {
-                "plugins": {
-                "errors": true,
-                "reload": true,
-                "debug": false,
-                "log": {
-                    "format": "combined",
-                    "classes": "all"
-                },
-                "cache": {
-                    "parameters": 30
-                },
-                "forward": {
-                    "parameters": "172.20.0.10",
-                    "force_tcp": false
-                },
-                "prometheus": true,
-                "health": {
-                    "port": 8080
-                }
-                }
+            "cache" : {
+              "parameters" : 30,
+              "denial" : {},
+              "success" : {},
+              "prefetch" : {},
+              "serve_stale" : false
             },
-            "in-addr.arpa:53": {
-                "plugins": {
-                "errors": true,
-                "reload": true,
-                "debug": false,
-                "log": {
-                    "format": "combined",
-                    "classes": "all"
-                },
-                "cache": {
-                    "parameters": 30
-                },
-                "forward": {
-                    "parameters": "172.20.0.10",
-                    "force_tcp": false
-                },
-                "prometheus": true,
-                "health": {
-                    "port": 8080
-                }
-                }
+            "forward" : {
+              "parameters" : "172.20.0.10",
+              "force_tcp" : false,
+              "prefer_udp" : false,
+              "policy" : "",
+              "max_fails" : "",
+              "expire" : "",
+              "health_check" : "",
+              "except" : ""
+            },
+            "prometheus" : true,
+            "health" : {
+              "port" : 8080
             }
-        }
-    },
-    "useHostNetwork": true,
-    "updateStrategy": {
-        "rollingUpdate": {
-            "maxUnavailable": "10%"
-        }
-    },
-    "priorityClassName": "system-node-critical",
-    "podAnnotations": {},
-    "podSecurityContext": {},
-    "securityContext": {
-        "privileged": true
-    },
-    "readinessProbe": null,
-    "serviceAccount": {
-        "create": true,
-        "annotations": {},
-        "name": ""
-    },
-    "nodeSelector": {},
-    "affinity": {},
-    "tolerations": [
-        {
-            "key": "CriticalAddonsOnly",
-            "operator": "Exists"
+          }
         },
-        {
-            "effect": "NoExecute",
-            "operator": "Exists"
+        "ip6.arpa:53" : {
+          "plugins" : {
+            "errors" : true,
+            "reload" : true,
+            "debug" : false,
+            "log" : {
+              "format" : "combined",
+              "classes" : "all"
+            },
+            "cache" : {
+              "parameters" : 30
+            },
+            "forward" : {
+              "parameters" : "172.20.0.10",
+              "force_tcp" : false
+            },
+            "prometheus" : true,
+            "health" : {
+              "port" : 8080
+            }
+          }
         },
-        {
-            "effect": "NoSchedule",
-            "operator": "Exists"
+        "in-addr.arpa:53" : {
+          "plugins" : {
+            "errors" : true,
+            "reload" : true,
+            "debug" : false,
+            "log" : {
+              "format" : "combined",
+              "classes" : "all"
+            },
+            "cache" : {
+              "parameters" : 30
+            },
+            "forward" : {
+              "parameters" : "172.20.0.10",
+              "force_tcp" : false
+            },
+            "prometheus" : true,
+            "health" : {
+              "port" : 8080
+            }
+          }
         }
+      }
+    },
+    "useHostNetwork" : true,
+    "updateStrategy" : {
+      "rollingUpdate" : {
+        "maxUnavailable" : "10%"
+      }
+    },
+    "priorityClassName" : "system-node-critical",
+    "podAnnotations" : {},
+    "podSecurityContext" : {},
+    "securityContext" : {
+      "privileged" : true
+    },
+    "readinessProbe" : null,
+    "serviceAccount" : {
+      "create" : true,
+      "annotations" : {},
+      "name" : ""
+    },
+    "nodeSelector" : {},
+    "affinity" : {},
+    "tolerations" : [
+      {
+        "key" : "CriticalAddonsOnly",
+        "operator" : "Exists"
+      },
+      {
+        "effect" : "NoExecute",
+        "operator" : "Exists"
+      },
+      {
+        "effect" : "NoSchedule",
+        "operator" : "Exists"
+      }
     ],
-    "resources": {
-        "requests": {
-            "cpu": "30m",
-            "memory": "50Mi"
-        }
+    "resources" : {
+      "requests" : {
+        "cpu" : "30m",
+        "memory" : "50Mi"
+      }
     },
-    "metrics": {
-        "prometheusScrape": "true",
-        "port": 9253
+    "metrics" : {
+      "prometheusScrape" : "true",
+      "port" : 9253
     }
   })
 }
