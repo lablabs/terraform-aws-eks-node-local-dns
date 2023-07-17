@@ -82,11 +82,6 @@ locals {
       }
     },
     "useHostNetwork" : true,
-    "updateStrategy" : {
-      "rollingUpdate" : {
-        "maxUnavailable" : "10%"
-      }
-    },
     "priorityClassName" : "system-node-critical",
     "podAnnotations" : {},
     "podSecurityContext" : {},
@@ -96,8 +91,10 @@ locals {
     "readinessProbe" : null,
     "serviceAccount" : {
       "create" : true,
-      "annotations" : {},
-      "name" : ""
+      "annotations" : {
+        "eks.amazonaws.com/role-arn" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${aws_iam_role.this[0].name}"
+      },
+      "name" : var.service_account_name
     },
     "nodeSelector" : {},
     "affinity" : {},
@@ -127,6 +124,8 @@ locals {
     }
   })
 }
+
+data "aws_caller_identity" "current" {}
 
 data "utils_deep_merge_yaml" "values" {
   count = var.enabled ? 1 : 0
