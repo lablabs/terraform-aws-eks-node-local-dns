@@ -53,7 +53,7 @@ locals {
             },
             "prometheus" : true,
             "health" : {
-              "port" : 8080
+              "port" : 8081
             }
           }
         },
@@ -75,7 +75,7 @@ locals {
             },
             "prometheus" : true,
             "health" : {
-              "port" : 8080
+              "port" : 8082
             }
           }
         }
