@@ -26,14 +26,25 @@ data "utils_deep_merge_yaml" "argo_helm_values" {
   ])
 }
 
+resource "random_pet" "argo_app_suffix" {
+  count = local.helm_argo_application_enabled ? 1 : 0
+  keepers = {
+    values = jsonencode(local.argo_application_values[*])
+  }
+}
+
 resource "helm_release" "argo_application" {
   count = local.helm_argo_application_enabled ? 1 : 0
 
   chart     = "${path.module}/helm/argocd-application"
-  name      = var.helm_release_name
+  name      = "${var.helm_release_name}-${random_pet.argo_app_suffix[count.index].id}"
   namespace = var.argo_namespace
 
   values = local.helm_argo_application_values
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "kubernetes_role" "helm_argo_application_wait" {
@@ -123,7 +134,7 @@ resource "kubernetes_job" "helm_argo_application_wait" {
                 --namespace ${var.argo_namespace} \
                 --for=jsonpath='{.${container.key}}'=${container.value} \
                 --timeout=${var.argo_helm_wait_timeout} \
-                application.argoproj.io ${var.helm_release_name}
+                application.argoproj.io "${var.helm_release_name}-${random_pet.argo_app_suffix[count.index].id}"
               EOT
             ]
           }

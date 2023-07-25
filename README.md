@@ -1,4 +1,4 @@
-# AWS EKS NodeLocal DNSCache Terraform module
+# AWS EKS Node-Local-DNS Terraform module
 
 [<img src="https://lablabs.io/static/ll-logo.png" width=350px>](https://lablabs.io/)
 
