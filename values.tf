@@ -14,14 +14,17 @@ locals {
             },
             "cache" : {
               "parameters" : 30,
-              "denial" : {},
+              "denial" : {
+                size : 0,
+                ttl : 1
+              },
               "success" : {},
               "prefetch" : {},
               "serve_stale" : false
             },
             "forward" : {
               "parameters" : "172.20.0.10",
-              "force_tcp" : false,
+              "force_tcp" : true,
               "prefer_udp" : false,
               "policy" : "",
               "max_fails" : "",
@@ -41,15 +44,14 @@ locals {
             "reload" : true,
             "debug" : false,
             "log" : {
-              "format" : "combined",
-              "classes" : "all"
+              "classes" : "error"
             },
             "cache" : {
               "parameters" : 30
             },
             "forward" : {
               "parameters" : "172.20.0.10",
-              "force_tcp" : false
+              "force_tcp" : true
             },
             "prometheus" : true,
             "health" : {
@@ -63,15 +65,14 @@ locals {
             "reload" : true,
             "debug" : false,
             "log" : {
-              "format" : "combined",
-              "classes" : "all"
+              "classes" : "error"
             },
             "cache" : {
               "parameters" : 30
             },
             "forward" : {
               "parameters" : "172.20.0.10",
-              "force_tcp" : false
+              "force_tcp" : true
             },
             "prometheus" : true,
             "health" : {
@@ -96,7 +97,6 @@ locals {
       },
       "name" : var.service_account_name
     },
-    "nodeSelector" : {},
     "affinity" : {},
     "tolerations" : [
       {
@@ -114,16 +114,20 @@ locals {
     ],
     "resources" : {
       "requests" : {
-        "cpu" : "30m",
-        "memory" : "50Mi"
+        "cpu" : "70m",
+        "memory" : "100Mi"
       }
     },
-    "metrics" : {
-      "prometheusScrape" : "true",
-      "port" : 9253
-    }
+  })
+
+  metrics_port = yamlencode({
+      "metrics" : { 
+        "prometheusScrape" : "true",
+        "port" : random_integer.metrics_port[0].result 
+      }
   })
 }
+
 
 data "aws_caller_identity" "current" {}
 
@@ -131,6 +135,8 @@ data "utils_deep_merge_yaml" "values" {
   count = var.enabled ? 1 : 0
   input = compact([
     local.values_default,
-    var.values
+    var.values,
+    local.metrics_port
+
   ])
 }

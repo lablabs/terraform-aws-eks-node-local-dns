@@ -22,15 +22,11 @@ data "utils_deep_merge_yaml" "argo_helm_values" {
     }),
     yamlencode(
       local.argo_application_metadata
-    )
+    ),
+    yamlencode({
+      "spec" : {"source": { "helm": {"releaseName" : "${var.helm_release_name}-${random_pet.argo_app_suffix[count.index].id}"}}}
+    })
   ])
-}
-
-resource "random_pet" "argo_app_suffix" {
-  count = local.helm_argo_application_enabled ? 1 : 0
-  keepers = {
-    values = jsonencode(local.argo_application_values[*])
-  }
 }
 
 resource "helm_release" "argo_application" {
