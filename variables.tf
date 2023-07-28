@@ -238,7 +238,11 @@ variable "argo_kubernetes_manifest_field_manager_force_conflicts" {
 
 variable "argo_kubernetes_manifest_wait_fields" {
   type        = map(string)
-  default     = {}
+  default     = {
+        "status.sync.status"          = "Synced"
+        "status.health.status"        = "Healthy"
+        "status.operationState.phase" = "Succeeded"
+      }
   description = "A map of fields and a corresponding regular expression with a pattern to wait for. The provider will wait until the field matches the regular expression. Use * for any value."
 }
 
@@ -348,7 +352,7 @@ variable "helm_atomic" {
 
 variable "helm_wait" {
   type        = bool
-  default     = false
+  default     = true
   description = "Will wait until all helm release resources are in a ready state before marking the release as successful. It will wait for as long as timeout"
 }
 
