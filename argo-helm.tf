@@ -24,7 +24,7 @@ data "utils_deep_merge_yaml" "argo_helm_values" {
       local.argo_application_metadata
     ),
     yamlencode({
-      "spec" : {"source": { "helm": {"releaseName" : "${var.helm_release_name}-${random_pet.argo_app_suffix[count.index].id}"}}}
+      "spec" : {"source": { "helm": {"releaseName" : local.release_name_suffixed}}}
     })
   ])
 }
@@ -33,7 +33,7 @@ resource "helm_release" "argo_application" {
   count = local.helm_argo_application_enabled ? 1 : 0
 
   chart     = "${path.module}/helm/argocd-application"
-  name      = "${var.helm_release_name}-${random_pet.argo_app_suffix[count.index].id}"
+  name      = local.release_name_suffixed
   namespace = var.argo_namespace
 
   values = local.helm_argo_application_values
@@ -130,7 +130,7 @@ resource "kubernetes_job" "helm_argo_application_wait" {
                 --namespace ${var.argo_namespace} \
                 --for=jsonpath='{.${container.key}}'=${container.value} \
                 --timeout=${var.argo_helm_wait_timeout} \
-                application.argoproj.io "${var.helm_release_name}-${random_pet.argo_app_suffix[count.index].id}"
+                application.argoproj.io ${local.release_name_suffixed}
               EOT
             ]
           }

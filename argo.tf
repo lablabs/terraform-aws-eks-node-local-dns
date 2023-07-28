@@ -11,7 +11,7 @@ locals {
       "chart" : var.helm_chart_name
       "targetRevision" : var.helm_chart_version
       "helm" : {
-        "releaseName" : var.helm_release_name
+        "releaseName" : local.release_name_suffixed
         "parameters" : [for k, v in var.settings : tomap({ "forceString" : true, "name" : k, "value" : v })]
         "values" : var.enabled ? data.utils_deep_merge_yaml.values[0].output : ""
       }
@@ -25,25 +25,6 @@ locals {
   }
 }
 
-resource "random_integer" "metrics_port" {
-  count = var.enabled && var.argo_enabled ? 1 : 0
-
-  min = 1025
-  max = 32667
-
-  keepers = {
-    values = random_pet.argo_app_suffix[count.index].id
-  }
-}
-
-resource "random_pet" "argo_app_suffix" {
-  count = var.enabled && var.argo_enabled ? 1 : 0
-  keepers = {
-    var_values = jsonencode(var.values),
-    default_values = jsonencode(local.values_default)
-  }
-}
-
 resource "kubernetes_manifest" "this" {
   count = var.enabled && var.argo_enabled && !var.argo_helm_enabled ? 1 : 0
   manifest = {
@@ -51,7 +32,7 @@ resource "kubernetes_manifest" "this" {
     "kind"       = "Application"
     "metadata" = merge(
       local.argo_application_metadata,
-      { "name" = "${var.helm_release_name}-${random_pet.argo_app_suffix[count.index].id}" },
+      { "name" = "${local.release_name_suffixed}" },
       { "namespace" = var.argo_namespace },
     )
     "spec" = merge(
@@ -68,5 +49,9 @@ resource "kubernetes_manifest" "this" {
 
   wait {
     fields = var.argo_kubernetes_manifest_wait_fields
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }

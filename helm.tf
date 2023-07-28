@@ -3,7 +3,7 @@ resource "helm_release" "this" {
   chart            = var.helm_chart_name
   create_namespace = var.helm_create_namespace
   namespace        = var.namespace
-  name             = var.helm_release_name
+  name             = local.release_name_suffixed
   version          = var.helm_chart_version
   repository       = var.helm_repo_url
 
@@ -35,7 +35,8 @@ resource "helm_release" "this" {
   lint                       = var.helm_lint
 
   values = [
-    data.utils_deep_merge_yaml.values[0].output
+    data.utils_deep_merge_yaml.values[0].output,
+    jsonencode({serviceAccount: {name: local.release_name_suffixed}}),
   ]
 
   dynamic "set" {
@@ -59,5 +60,9 @@ resource "helm_release" "this" {
     content {
       binary_path = postrender.value
     }
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
