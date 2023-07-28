@@ -126,8 +126,29 @@ locals {
         "port" : random_integer.metrics_port[0].result 
       }
   })
+
+  release_name_suffixed = "${var.helm_release_name}-${one(random_pet.argo_app_suffix[*].id)}"
+
 }
 
+resource "random_integer" "metrics_port" {
+  count = var.enabled ? 1 : 0
+
+  min = 1025
+  max = 32667
+
+  keepers = {
+    values = random_pet.argo_app_suffix[count.index].id
+  }
+}
+
+resource "random_pet" "argo_app_suffix" {
+  count = var.enabled ? 1 : 0
+  keepers = {
+    var_values = jsonencode(var.values),
+    default_values = jsonencode(local.values_default)
+  }
+}
 
 data "aws_caller_identity" "current" {}
 
@@ -137,6 +158,5 @@ data "utils_deep_merge_yaml" "values" {
     local.values_default,
     var.values,
     local.metrics_port
-
   ])
 }
