@@ -24,7 +24,7 @@ data "utils_deep_merge_yaml" "argo_helm_values" {
       local.argo_application_metadata
     ),
     yamlencode({
-      "spec" : {"source": { "helm": {"releaseName" : local.release_name_suffixed}}}
+      "spec" : { "source" : { "helm" : { "releaseName" : local.release_name_suffixed } } }
     })
   ])
 }

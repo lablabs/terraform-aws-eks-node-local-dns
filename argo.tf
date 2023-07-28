@@ -32,7 +32,7 @@ resource "kubernetes_manifest" "this" {
     "kind"       = "Application"
     "metadata" = merge(
       local.argo_application_metadata,
-      { "name" = "${local.release_name_suffixed}" },
+      { "name" = local.release_name_suffixed },
       { "namespace" = var.argo_namespace },
     )
     "spec" = merge(

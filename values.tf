@@ -121,10 +121,10 @@ locals {
   })
 
   metrics_port = yamlencode({
-      "metrics" : { 
-        "prometheusScrape" : "true",
-        "port" : random_integer.metrics_port[0].result 
-      }
+    "metrics" : {
+      "prometheusScrape" : "true",
+      "port" : random_integer.metrics_port[0].result
+    }
   })
 
   release_name_suffixed = "${var.helm_release_name}-${one(random_pet.release_name_suffix[*].id)}"
@@ -145,7 +145,7 @@ resource "random_integer" "metrics_port" {
 resource "random_pet" "release_name_suffix" {
   count = var.enabled ? 1 : 0
   keepers = {
-    var_values = jsonencode(var.values),
+    var_values     = jsonencode(var.values),
     default_values = jsonencode(local.values_default)
   }
 }

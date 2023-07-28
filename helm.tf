@@ -36,7 +36,7 @@ resource "helm_release" "this" {
 
   values = [
     data.utils_deep_merge_yaml.values[0].output,
-    jsonencode({serviceAccount: {name: local.release_name_suffixed}}),
+    jsonencode({ serviceAccount : { name : local.release_name_suffixed } }),
   ]
 
   dynamic "set" {
