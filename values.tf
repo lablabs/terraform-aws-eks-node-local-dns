@@ -127,7 +127,7 @@ locals {
       }
   })
 
-  release_name_suffixed = "${var.helm_release_name}-${one(random_pet.argo_app_suffix[*].id)}"
+  release_name_suffixed = "${var.helm_release_name}-${one(random_pet.release_name_suffix[*].id)}"
 
 }
 
@@ -138,11 +138,11 @@ resource "random_integer" "metrics_port" {
   max = 32667
 
   keepers = {
-    values = random_pet.argo_app_suffix[count.index].id
+    values = random_pet.release_name_suffix[count.index].id
   }
 }
 
-resource "random_pet" "argo_app_suffix" {
+resource "random_pet" "release_name_suffix" {
   count = var.enabled ? 1 : 0
   keepers = {
     var_values = jsonencode(var.values),
