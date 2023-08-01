@@ -3,7 +3,7 @@ resource "helm_release" "this" {
   chart            = var.helm_chart_name
   create_namespace = var.helm_create_namespace
   namespace        = var.namespace
-  name             = local.release_name_suffixed
+  name             = local.helm_release_name
   version          = var.helm_chart_version
   repository       = var.helm_repo_url
 
@@ -36,7 +36,7 @@ resource "helm_release" "this" {
 
   values = [
     data.utils_deep_merge_yaml.values[0].output,
-    jsonencode({ serviceAccount : { name : local.release_name_suffixed } }),
+    jsonencode({ serviceAccount : { name : local.helm_release_name } }),
   ]
 
   dynamic "set" {

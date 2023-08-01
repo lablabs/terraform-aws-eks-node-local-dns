@@ -127,7 +127,7 @@ locals {
     }
   })
 
-  release_name_suffixed = "${var.helm_release_name}-${one(random_pet.release_name_suffix[*].id)}"
+  helm_release_name = "${var.helm_release_name}-${one(random_pet.release_name_suffix[*].id)}"
 
 }
 
