@@ -22,7 +22,10 @@ data "utils_deep_merge_yaml" "argo_helm_values" {
     }),
     yamlencode(
       local.argo_application_metadata
-    )
+    ),
+    yamlencode({
+      "spec" : { "source" : { "helm" : { "releaseName" : local.helm_release_name } } }
+    })
   ])
 }
 
@@ -30,10 +33,14 @@ resource "helm_release" "argo_application" {
   count = local.helm_argo_application_enabled ? 1 : 0
 
   chart     = "${path.module}/helm/argocd-application"
-  name      = var.helm_release_name
+  name      = local.helm_release_name
   namespace = var.argo_namespace
 
   values = local.helm_argo_application_values
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "kubernetes_role" "helm_argo_application_wait" {
@@ -123,7 +130,7 @@ resource "kubernetes_job" "helm_argo_application_wait" {
                 --namespace ${var.argo_namespace} \
                 --for=jsonpath='{.${container.key}}'=${container.value} \
                 --timeout=${var.argo_helm_wait_timeout} \
-                application.argoproj.io ${var.helm_release_name}
+                application.argoproj.io ${local.helm_release_name}
               EOT
             ]
           }

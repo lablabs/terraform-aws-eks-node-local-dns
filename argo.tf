@@ -11,7 +11,7 @@ locals {
       "chart" : var.helm_chart_name
       "targetRevision" : var.helm_chart_version
       "helm" : {
-        "releaseName" : var.helm_release_name
+        "releaseName" : local.helm_release_name
         "parameters" : [for k, v in var.settings : tomap({ "forceString" : true, "name" : k, "value" : v })]
         "values" : var.enabled ? data.utils_deep_merge_yaml.values[0].output : ""
       }
@@ -32,7 +32,7 @@ resource "kubernetes_manifest" "this" {
     "kind"       = "Application"
     "metadata" = merge(
       local.argo_application_metadata,
-      { "name" = var.helm_release_name },
+      { "name" = local.helm_release_name },
       { "namespace" = var.argo_namespace },
     )
     "spec" = merge(
@@ -49,5 +49,9 @@ resource "kubernetes_manifest" "this" {
 
   wait {
     fields = var.argo_kubernetes_manifest_wait_fields
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
