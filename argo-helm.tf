@@ -136,6 +136,19 @@ resource "kubernetes_job" "helm_argo_application_wait" {
           }
         }
 
+        node_selector = var.argo_helm_wait_node_selector
+
+        dynamic "toleration" {
+          for_each = var.argo_helm_wait_tolerations
+
+          content {
+            key      = try(toleration.value.key, null)
+            operator = try(toleration.value.operator, null)
+            value    = try(toleration.value.value, null)
+            effect   = try(toleration.value.effect, null)
+          }
+        }
+
         # ArgoCD Application status fields might not be available immediately after creation
         restart_policy = "OnFailure"
       }
