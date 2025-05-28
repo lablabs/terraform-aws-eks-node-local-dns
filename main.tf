@@ -20,6 +20,41 @@ locals {
   }
 
   addon_values = yamlencode({
+    zones = {
+      ".:53" = {
+        plugins = {
+          cache = {
+            denial = { # disable negative caching
+              size = 0
+              ttl  = 1
+            }
+          }
+          forward = {
+            force_tcp = true
+          }
+        }
+      }
+      "ip6.arpa:53" = {
+        plugins = {
+          log = {
+            classes = "error"
+          }
+          forward = {
+            force_tcp = true
+          }
+        }
+      }
+      "in-addr.arpa:53" = {
+        plugins = {
+          log = {
+            classes = "error"
+          }
+          forward = {
+            force_tcp = true
+          }
+        }
+      }
+    }
     serviceAccount = {
       create = module.addon-irsa[local.addon.name].service_account_create
       name   = module.addon-irsa[local.addon.name].service_account_name
