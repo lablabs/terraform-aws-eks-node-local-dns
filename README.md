@@ -1,4 +1,12 @@
 <!-- BEGIN_TF_DOCS -->
+[<img src="https://cdn.prod.website-files.com/66b4bc4ca83726f5a87183ab/685136470d15399f106cb13e_adcbd542a834a1942d077cd5c09d3057_GitHub%20cover%20image%201584x396.png">](https://lablabs.io/)
+
+**About us:**</br>
+[Labyrinth Labs](https://lablabs.io/) is a one-stop-shop for **DevOps, Cloud & Kubernetes**! We specialize in creating **powerful**, **scalable** and **cloud-native platforms** tailored to elevate your business.
+
+[As a team of experienced DevOps engineers](https://lablabs.io/about/), we know how to help our customers start their journey in the cloud, address the issues they have in their current setups and provide a **strategic solution to transform their infrastructure**.
+
+----
 # AWS EKS Node Local DNS Terraform module
 
 A Terraform module to deploy the [Node Local DNS](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/) on Amazon EKS cluster. The upgrade process of this module is using the `create before destroy` feature, and the already running DaemonSet will be terminated after the new one is already running.
@@ -40,22 +48,24 @@ See [basic example](examples/basic) for further information.
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5 |
-| <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 2.6.0 |
-| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 2.20.0 |
-| <a name="requirement_utils"></a> [utils](#requirement\_utils) | >= 0.17.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 2.6 |
+| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 2.20 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | >= 3 |
+| <a name="requirement_utils"></a> [utils](#requirement\_utils) | >= 1 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_addon"></a> [addon](#module\_addon) | git::https://github.com/lablabs/terraform-aws-eks-universal-addon.git//modules/addon | v0.0.18 |
-| <a name="module_addon-irsa"></a> [addon-irsa](#module\_addon-irsa) | git::https://github.com/lablabs/terraform-aws-eks-universal-addon.git//modules/addon-irsa | v0.0.18 |
+| <a name="module_addon"></a> [addon](#module\_addon) | ./modules/addon | n/a |
 ## Resources
 
 | Name | Type |
 |------|------|
+| [random_integer.metrics_port](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) | resource |
+| [random_pet.release_name_suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
 | [utils_deep_merge_yaml.values](https://registry.terraform.io/providers/cloudposse/utils/latest/docs/data-sources/deep_merge_yaml) | data source |
 > [!IMPORTANT]
 > Variables defined in [variables-addon[-irsa|oidc].tf](variables-addon.tf) defaults to `null` to have them overridable by the addon configuration defined though the [`local.addon[_irsa|oidc].*`](main.tf) local variable with the default values defined in [addon[-irsa|oidc].tf](addon.tf).
@@ -69,16 +79,16 @@ See [basic example](examples/basic) for further information.
 | <a name="input_argo_helm_enabled"></a> [argo\_helm\_enabled](#input\_argo\_helm\_enabled) | If set to `true`, the ArgoCD Application manifest will be deployed using Kubernetes provider as a Helm release. Otherwise it'll be deployed as a Kubernetes manifest. See README for more info. Defaults to `false`. | `bool` |
 | <a name="input_argo_helm_values"></a> [argo\_helm\_values](#input\_argo\_helm\_values) | Value overrides to use when deploying ArgoCD Application object with Helm. Defaults to `""`. | `string` |
 | <a name="input_argo_helm_wait_backoff_limit"></a> [argo\_helm\_wait\_backoff\_limit](#input\_argo\_helm\_wait\_backoff\_limit) | Backoff limit for ArgoCD Application Helm release wait job. Defaults to `6`. | `number` |
-| <a name="input_argo_helm_wait_kubectl_version"></a> [argo\_helm\_wait\_kubectl\_version](#input\_argo\_helm\_wait\_kubectl\_version) | Version of kubectl to use for ArgoCD Application wait job. Defaults to `1.33.0`. | `string` |
+| <a name="input_argo_helm_wait_kubectl_version"></a> [argo\_helm\_wait\_kubectl\_version](#input\_argo\_helm\_wait\_kubectl\_version) | Version of kubectl to use for ArgoCD Application wait job. Defaults to `1.33.3`. | `string` |
 | <a name="input_argo_helm_wait_node_selector"></a> [argo\_helm\_wait\_node\_selector](#input\_argo\_helm\_wait\_node\_selector) | Node selector for ArgoCD Application Helm release wait job. Defaults to `{}`. | `map(string)` |
 | <a name="input_argo_helm_wait_timeout"></a> [argo\_helm\_wait\_timeout](#input\_argo\_helm\_wait\_timeout) | Timeout for ArgoCD Application Helm release wait job. Defaults to `10m`. | `string` |
 | <a name="input_argo_helm_wait_tolerations"></a> [argo\_helm\_wait\_tolerations](#input\_argo\_helm\_wait\_tolerations) | Tolerations for ArgoCD Application Helm release wait job. Defaults to `[]`. | `list(any)` |
-| <a name="input_argo_info"></a> [argo\_info](#input\_argo\_info) | ArgoCD Application manifest info parameter. Defaults to `[{"name": "terraform", "value": "true"}]`. | `list(any)` |
-| <a name="input_argo_kubernetes_manifest_computed_fields"></a> [argo\_kubernetes\_manifest\_computed\_fields](#input\_argo\_kubernetes\_manifest\_computed\_fields) | List of paths of fields to be handled as "computed". The user-configured value for the field will be overridden by any different value returned by the API after apply. Defaults to `["metadata.labels", "metadata.annotations", "metadata.finalizers"]`. | `list(string)` |
+| <a name="input_argo_info"></a> [argo\_info](#input\_argo\_info) | ArgoCD Application manifest info parameter. Defaults to `[{ name = "terraform", value = "true" }]`. | `list(any)` |
+| <a name="input_argo_kubernetes_manifest_computed_fields"></a> [argo\_kubernetes\_manifest\_computed\_fields](#input\_argo\_kubernetes\_manifest\_computed\_fields) | List of paths of fields to be handled as `computed`. The user-configured value for the field will be overridden by any different value returned by the API after apply. Defaults to `["metadata.labels", "metadata.annotations", "metadata.finalizers"]`. | `list(string)` |
 | <a name="input_argo_kubernetes_manifest_field_manager_force_conflicts"></a> [argo\_kubernetes\_manifest\_field\_manager\_force\_conflicts](#input\_argo\_kubernetes\_manifest\_field\_manager\_force\_conflicts) | Forcibly override any field manager conflicts when applying the kubernetes manifest resource. Defaults to `false`. | `bool` |
 | <a name="input_argo_kubernetes_manifest_field_manager_name"></a> [argo\_kubernetes\_manifest\_field\_manager\_name](#input\_argo\_kubernetes\_manifest\_field\_manager\_name) | The name of the field manager to use when applying the Kubernetes manifest resource. Defaults to `Terraform`. | `string` |
 | <a name="input_argo_kubernetes_manifest_wait_fields"></a> [argo\_kubernetes\_manifest\_wait\_fields](#input\_argo\_kubernetes\_manifest\_wait\_fields) | A map of fields and a corresponding regular expression with a pattern to wait for. The provider will wait until the field matches the regular expression. Use * for any value. Defaults to `{}`. | `map(string)` |
-| <a name="input_argo_metadata"></a> [argo\_metadata](#input\_argo\_metadata) | ArgoCD Application metadata configuration. Override or create additional metadata parameters. Defaults to `{"finalizers": ["resources-finalizer.argocd.argoproj.io"]}`. | `any` |
+| <a name="input_argo_metadata"></a> [argo\_metadata](#input\_argo\_metadata) | ArgoCD Application metadata configuration. Override or create additional metadata parameters. Defaults to `{ finalizers = ["resources-finalizer.argocd.argoproj.io"] }`. | `any` |
 | <a name="input_argo_name"></a> [argo\_name](#input\_argo\_name) | Name of the ArgoCD Application. Required if `argo_source_type` is set to `kustomize` or `directory`.  If `argo_source_type` is set to `helm`, ArgoCD Application name will equal `helm_release_name`. Defaults to `""`. | `string` |
 | <a name="input_argo_namespace"></a> [argo\_namespace](#input\_argo\_namespace) | Namespace to deploy ArgoCD Application to. Defaults to `argo`. | `string` |
 | <a name="input_argo_operation"></a> [argo\_operation](#input\_argo\_operation) | ArgoCD Application manifest operation parameter. Defaults to `{}`. | `any` |
@@ -86,7 +96,7 @@ See [basic example](examples/basic) for further information.
 | <a name="input_argo_source_path"></a> [argo\_source\_path](#input\_argo\_source\_path) | ArgoCD Application source path. Required if `argo_source_type` is set to `kustomize` or `directory`. Defaults to `""`. | `string` |
 | <a name="input_argo_source_repo_url"></a> [argo\_source\_repo\_url](#input\_argo\_source\_repo\_url) | ArgoCD Application source repo URL. Required if `argo_source_type` is set to `kustomize` or `directory`. Defaults to `""`. | `string` |
 | <a name="input_argo_source_target_revision"></a> [argo\_source\_target\_revision](#input\_argo\_source\_target\_revision) | ArgoCD Application source target revision. Required if `argo_source_type` is set to `kustomize` or `directory`. Defaults to `""`. | `string` |
-| <a name="input_argo_source_type"></a> [argo\_source\_type](#input\_argo\_source\_type) | Source type for ArgoCD Application. Can be either `helm`, `kustomize`, or `directory`. Defaults to `helm`. | `string` |
+| <a name="input_argo_source_type"></a> [argo\_source\_type](#input\_argo\_source\_type) | Source type for ArgoCD Application. Can be either `helm`, `kustomize`, `directory` or `helm-directory`. Defaults to `helm`. | `string` |
 | <a name="input_argo_spec"></a> [argo\_spec](#input\_argo\_spec) | ArgoCD Application spec configuration. Configuration is extended by deep merging with the default spec parameters. Defaults to `{}`. | `any` |
 | <a name="input_argo_spec_override"></a> [argo\_spec\_override](#input\_argo\_spec\_override) | ArgoCD Application spec configuration. Configuration is overriden by merging natively with the default spec parameters. Defaults to `{}`. | `any` |
 | <a name="input_argo_sync_policy"></a> [argo\_sync\_policy](#input\_argo\_sync\_policy) | ArgoCD Application manifest syncPolicy parameter. Defaults to `{}`. | `any` |
@@ -160,7 +170,6 @@ See [basic example](examples/basic) for further information.
 | Name | Description |
 |------|-------------|
 | <a name="output_addon"></a> [addon](#output\_addon) | The addon module outputs |
-| <a name="output_addon_irsa"></a> [addon\_irsa](#output\_addon\_irsa) | The addon IRSA module outputs |
 ## Contributing and reporting issues
 
 Feel free to create an issue in this repository if you have questions, suggestions or feature requests.

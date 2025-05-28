@@ -12,13 +12,3 @@ moved {
   from = helm_release.argo_application
   to   = module.addon.helm_release.argo_application
 }
-
-moved {
-  from = aws_iam_role.this
-  to   = module.addon-irsa["node-local-dns"].aws_iam_role.this
-}
-
-moved {
-  from = aws_iam_role_policy_attachment.this_additional
-  to   = module.addon-irsa["node-local-dns"].aws_iam_role_policy_attachment.this_additional
-}

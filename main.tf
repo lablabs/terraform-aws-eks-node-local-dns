@@ -11,56 +11,91 @@ locals {
     name      = "node-local-dns"
     namespace = "kube-system"
 
-    helm_chart_version = "2.2.0"
+    helm_chart_version = "2.1.0"
     helm_repo_url      = "https://lablabs.github.io/k8s-nodelocaldns-helm"
   }
 
-  addon_irsa = {
-    (local.addon.name) = {}
-  }
-
   addon_values = yamlencode({
-    zones = {
-      ".:53" = {
-        plugins = {
-          cache = {
-            denial = { # disable negative caching
-              size = 0
-              ttl  = 1
+    podAnnotations = {
+      "checksum/configmaps" = "" # when a ConfigMap is updated a new instance of the DaemonSet is created
+    }
+    config = {
+      zones = {
+        ".:53" = {
+          plugins = {
+            log = {
+              classes = "error"
+            }
+            cache = {
+              denial = { # disable negative caching
+                size = 0
+                ttl  = 1
+              }
+            }
+            forward = {
+              force_tcp = true
+            }
+            health = {
+              port = 8080
             }
           }
-          forward = {
-            force_tcp = true
+        }
+        "ip6.arpa:53" = {
+          plugins = {
+            log = {
+              classes = "error"
+            }
+            forward = {
+              force_tcp = true
+            }
+            health = {
+              port = 8081
+            }
+          }
+        }
+        "in-addr.arpa:53" = {
+          plugins = {
+            log = {
+              classes = "error"
+            }
+            forward = {
+              force_tcp = true
+            }
+            health = {
+              port = 8082
+            }
           }
         }
       }
-      "ip6.arpa:53" = {
-        plugins = {
-          log = {
-            classes = "error"
-          }
-          forward = {
-            force_tcp = true
-          }
-        }
-      }
-      "in-addr.arpa:53" = {
-        plugins = {
-          log = {
-            classes = "error"
-          }
-          forward = {
-            force_tcp = true
-          }
-        }
-      }
-    }
-    serviceAccount = {
-      create = module.addon-irsa[local.addon.name].service_account_create
-      name   = module.addon-irsa[local.addon.name].service_account_name
-      annotations = module.addon-irsa[local.addon.name].irsa_role_enabled ? {
-        "eks.amazonaws.com/role-arn" = module.addon-irsa[local.addon.name].iam_role_attributes.arn
-      } : tomap({})
     }
   })
+
+  # CUSTOM config: Prometheus port is not using SO_REUSEPORT so additional instance can't bind to the same port
+  addon_metrics_values = yamlencode({
+    metrics = {
+      port = one(random_integer.metrics_port[*].result)
+    }
+  })
+
+  addon_depends_on = []
+}
+
+resource "random_pet" "release_name_suffix" {
+  count = var.enabled ? 1 : 0
+
+  keepers = {
+    version = coalesce(var.helm_chart_version, local.addon.helm_chart_version)
+    values  = yamlencode([local.addon_values, var.values])
+  }
+}
+
+resource "random_integer" "metrics_port" {
+  count = var.enabled ? 1 : 0
+
+  min = 1025
+  max = 32667
+
+  keepers = {
+    values = one(random_pet.release_name_suffix[*].id)
+  }
 }
