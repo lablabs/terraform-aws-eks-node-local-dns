@@ -12,7 +12,7 @@
 A Terraform module to deploy the [Node Local DNS](https://kubernetes.io/docs/tasks/administer-cluster/nodelocaldns/) on Amazon EKS cluster. The upgrade process of this module is using the `create before destroy` feature, and the already running DaemonSet will be terminated after the new one is already running.
 
 [![Terraform validate](https://github.com/lablabs/terraform-aws-eks-node-local-dns/actions/workflows/validate.yaml/badge.svg)](https://github.com/lablabs/terraform-aws-eks-node-local-dns/actions/workflows/validate.yaml)
-[![pre-commit](https://github.com/lablabs/terraform-aws-eks-node-local-dns/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/lablabs/terraform-aws-eks-node-local-dns/actions/workflows/pre-commit.yml)
+[![pre-commit](https://github.com/lablabs/terraform-aws-eks-node-local-dns/actions/workflows/pre-commit.yaml/badge.svg)](https://github.com/lablabs/terraform-aws-eks-node-local-dns/actions/workflows/pre-commit.yaml)
 
 ---
 
