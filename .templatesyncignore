@@ -1,0 +1,17 @@
+modules/addon-oidc
+modules/addon-irsa
+modules/addon/argo-helm.tf
+modules/addon/argo.tf
+modules/addon/helm.tf
+examples/basic/main.tf
+main.tf
+variables.tf
+README.md
+.secrets.baseline
+.github/workflows/renovate.yaml
+renovate.json
+addon-oidc.tf
+addon-irsa.tf
+variables-addon-oidc.tf
+variables-addon-irsa.tf
+versions.tf

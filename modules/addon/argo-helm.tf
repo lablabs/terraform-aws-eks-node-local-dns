@@ -1,10 +1,10 @@
 locals {
-  helm_argo_application_enabled      = var.enabled && var.argo_enabled && var.argo_helm_enabled
-  helm_argo_application_wait_enabled = local.helm_argo_application_enabled && length(keys(var.argo_kubernetes_manifest_wait_fields)) > 0
-  helm_argo_application_values = [
+  helm_argo_application_enabled      = var.enabled == true && var.argo_enabled == true && var.argo_helm_enabled == true
+  helm_argo_application_wait_enabled = local.helm_argo_application_enabled && try(length(keys(var.argo_kubernetes_manifest_wait_fields)) > 0, false)
+  helm_argo_application_values = compact([
     one(data.utils_deep_merge_yaml.argo_helm_values[*].output),
     var.argo_helm_values
-  ]
+  ])
 }
 
 data "utils_deep_merge_yaml" "argo_helm_values" {
@@ -12,20 +12,20 @@ data "utils_deep_merge_yaml" "argo_helm_values" {
 
   input = compact([
     yamlencode({
-      "apiVersion" : var.argo_apiversion
+      apiVersion = var.argo_apiversion
     }),
     yamlencode({
-      "spec" : local.argo_application_values
+      spec = merge(
+        local.argo_application_spec,
+        var.argo_spec_override
+      )
     }),
     yamlencode({
-      "spec" : var.argo_spec
+      spec = var.argo_spec
     }),
     yamlencode(
       local.argo_application_metadata
-    ),
-    yamlencode({
-      "spec" : { "source" : { "helm" : { "releaseName" : local.helm_release_name } } }
-    })
+    )
   ])
 }
 
@@ -33,13 +33,15 @@ resource "helm_release" "argo_application" {
   count = local.helm_argo_application_enabled ? 1 : 0
 
   chart     = "${path.module}/helm/argocd-application"
-  name      = local.helm_release_name
+  name      = local.argo_application_name
   namespace = var.argo_namespace
+
+  max_history = var.helm_release_max_history
 
   values = local.helm_argo_application_values
 
   lifecycle {
-    create_before_destroy = true
+    create_before_destroy = true # CUSTOM config: We need to spawn a new ArgoCD Application before destroying the old one to avoid downtime
   }
 }
 
@@ -47,7 +49,7 @@ resource "kubernetes_role" "helm_argo_application_wait" {
   count = local.helm_argo_application_wait_enabled ? 1 : 0
 
   metadata {
-    name        = "${var.helm_release_name}-argo-application-wait"
+    name        = "${local.argo_application_name}-argo-application-wait"
     namespace   = var.argo_namespace
     labels      = local.argo_application_metadata.labels
     annotations = local.argo_application_metadata.annotations
@@ -64,7 +66,7 @@ resource "kubernetes_role_binding" "helm_argo_application_wait" {
   count = local.helm_argo_application_wait_enabled ? 1 : 0
 
   metadata {
-    name        = "${var.helm_release_name}-argo-application-wait"
+    name        = "${local.argo_application_name}-argo-application-wait"
     namespace   = var.argo_namespace
     labels      = local.argo_application_metadata.labels
     annotations = local.argo_application_metadata.annotations
@@ -87,7 +89,7 @@ resource "kubernetes_service_account" "helm_argo_application_wait" {
   count = local.helm_argo_application_wait_enabled ? 1 : 0
 
   metadata {
-    name        = "${var.helm_release_name}-argo-application-wait"
+    name        = "${local.argo_application_name}-argo-application-wait"
     namespace   = var.argo_namespace
     labels      = local.argo_application_metadata.labels
     annotations = local.argo_application_metadata.annotations
@@ -98,16 +100,15 @@ resource "kubernetes_job" "helm_argo_application_wait" {
   count = local.helm_argo_application_wait_enabled ? 1 : 0
 
   metadata {
-    name        = "${var.helm_release_name}-argo-application-wait"
-    namespace   = var.argo_namespace
-    labels      = local.argo_application_metadata.labels
-    annotations = local.argo_application_metadata.annotations
+    generate_name = "${local.argo_application_name}-argo-application-wait-"
+    namespace     = var.argo_namespace
+    labels        = local.argo_application_metadata.labels
+    annotations   = local.argo_application_metadata.annotations
   }
 
   spec {
     template {
       metadata {
-        name        = "${var.helm_release_name}-argo-application-wait"
         labels      = local.argo_application_metadata.labels
         annotations = local.argo_application_metadata.annotations
       }
@@ -119,19 +120,18 @@ resource "kubernetes_job" "helm_argo_application_wait" {
           for_each = var.argo_kubernetes_manifest_wait_fields
 
           content {
-            name    = "${lower(replace(container.key, ".", "-"))}-${md5(jsonencode(local.helm_argo_application_values))}" # md5 suffix is a workaround for https://github.com/hashicorp/terraform-provider-kubernetes/issues/1325
-            image   = "bitnami/kubectl:latest"
-            command = ["/bin/bash", "-ecx"]
+            name  = "${lower(replace(container.key, ".", "-"))}-${md5(jsonencode(local.helm_argo_application_values))}" # md5 suffix is a workaround for https://github.com/hashicorp/terraform-provider-kubernetes/issues/1325
+            image = "registry.k8s.io/kubectl:v${trim(var.argo_helm_wait_kubectl_version, "v")}"
             # Waits for ArgoCD Application to be "Healthy", see https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#wait
-            #   i.e. kubectl wait --for=jsonpath='{.status.sync.status}'=Healthy application.argoproj.io <$addon-name>
+            #   i.e. kubectl wait --for=jsonpath={.status.sync.status}=Healthy application.argoproj.io <$addon-name>
             args = [
-              <<-EOT
-              kubectl wait \
-                --namespace ${var.argo_namespace} \
-                --for=jsonpath='{.${container.key}}'=${container.value} \
-                --timeout=${var.argo_helm_wait_timeout} \
-                application.argoproj.io ${local.helm_release_name}
-              EOT
+              "wait",
+              "--namespace=${var.argo_namespace}",
+              "--for=jsonpath={.${container.key}}=${container.value}",
+              "--timeout=${var.argo_helm_wait_timeout}",
+              "--v=1", # https://kubernetes.io/docs/reference/kubectl/quick-reference/#kubectl-output-verbosity-and-debugging
+              "application.argoproj.io",
+              local.argo_application_name
             ]
           }
         }
