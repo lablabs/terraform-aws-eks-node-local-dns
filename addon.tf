@@ -6,12 +6,13 @@ locals {
   addon_argo_name         = var.argo_name != null ? var.argo_name : try(local.addon.argo_name, local.addon.name)
   addon_helm_release_name = var.helm_release_name != null ? var.helm_release_name : try(local.addon.helm_release_name, local.addon.name)
 
-  addon_name      = local.addon_argo_source_helm_enabled ? local.addon_helm_release_name : local.addon_argo_name
+  # CUSTOM config: We need to generate a unique name for the addon name to be able to deploy multiple instances
+  addon_name      = "${local.addon_argo_source_helm_enabled ? local.addon_helm_release_name : local.addon_argo_name}-${one(random_pet.release_name_suffix[*].id)}"
   addon_namespace = var.namespace != null ? var.namespace : try(local.addon.namespace, local.addon.name)
 }
 
 module "addon" {
-  source = "git::https://github.com/lablabs/terraform-aws-eks-universal-addon.git//modules/addon?ref=v0.0.24"
+  source = "./modules/addon" # CUSTOM config: relative path to the addon module with create_before_destroy lifecycle
 
   enabled = var.enabled
 
@@ -95,6 +96,7 @@ data "utils_deep_merge_yaml" "values" {
 
   input = compact([
     local.addon_values,
+    local.addon_metrics_values, # CUSTOM config: see main.tf for details
     var.values
   ])
 }
