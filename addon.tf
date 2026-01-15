@@ -87,7 +87,8 @@ module "addon" {
   values   = one(data.utils_deep_merge_yaml.values[*].output)
 
   depends_on = [
-    local.addon_depends_on
+    local.addon_depends_on,
+    var.addon_depends_on
   ]
 }
 
