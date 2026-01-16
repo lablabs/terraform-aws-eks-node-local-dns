@@ -15,4 +15,5 @@ addon-oidc.tf
 addon-irsa.tf
 variables-addon-oidc.tf
 variables-addon-irsa.tf
+.terraform.lock.hcl
 versions.tf
