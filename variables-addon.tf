@@ -261,7 +261,7 @@ variable "helm_package_verify" {
 variable "helm_keyring" {
   type        = string
   default     = null
-  description = "Location of public keys used for verification. Used only if `helm_package_verify` is `true`. Defaults to `~/.gnupg/pubring.gpg`."
+  description = "Location of public keys used for verification. Used only if `helm_package_verify` is `true`. Used only when `helm_package_verify` is `true`. Defaults to `~/.gnupg/pubring.gpg`."
 }
 
 variable "helm_timeout" {
@@ -384,5 +384,5 @@ variable "helm_postrender" {
     args        = optional(list(string))
   })
   default     = null
-  description = "Value block with a path to a binary file to run after Helm renders the manifest which can alter the manifest contents."
+  description = "Value block with a path to a binary file to run after Helm renders the manifest which can alter the manifest contents. Defaults to `null`."
 }

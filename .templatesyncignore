@@ -1,3 +1,5 @@
+.templatesyncignore
+tests
 modules/addon-oidc
 modules/addon-irsa
 modules/addon/argo-helm.tf
