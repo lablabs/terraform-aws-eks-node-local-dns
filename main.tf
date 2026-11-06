@@ -11,7 +11,7 @@ locals {
     name      = "node-local-dns"
     namespace = "kube-system"
 
-    helm_chart_version = "2.1.0"
+    helm_chart_version = "2.4.0" # 1.26.8
     helm_repo_url      = "https://lablabs.github.io/k8s-nodelocaldns-helm"
   }
 
